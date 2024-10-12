@@ -36,6 +36,10 @@ comment: {
     type: String,
     required: true,
 },
+rating: {
+    type: Number,
+    default: 0
+}
 });
 
 // Create the Report model

@@ -47,7 +47,7 @@ document.getElementById('go-button').addEventListener('click', async function() 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({lat: coords[0], lng: coords[1], dist: 1000}) // Send the report ID in the request body
+            body: JSON.stringify({lat: coords[0], lng: coords[1], dist: 1000, filters:{reportType:"all", time: undefined}}) // Send the report ID in the request body
         })
         .then(response => {
             if (!response.ok) {

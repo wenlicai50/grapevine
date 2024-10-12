@@ -14,12 +14,30 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css" />
     <style>
+
+        .suggestions {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute;
+            background-color: white;
+            z-index: 1000;
+        }
+        .suggestions li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestions li:hover {
+            background-color: #dfe1e7;
+        }
         body {
             background-color: #f8f9fa; /* Light gray background for the page */
         }
         #selection-map {
             height: 70vh; /* 70% of the viewport height for the map */
-            width: 100vw; /* Full viewport width for the map */
             border-radius: 0; /* Remove border radius for full span */
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
@@ -77,7 +95,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">Sicher</a>
+        <a class="navbar-brand" href="/">Grapevine</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -86,14 +104,63 @@
 
 <!-- Map to Select Location -->
 <section class="container-fluid my-0">
-    <div id="selection-map"></div>
-</section>
+    <div class="row">
+        <div class="col-12">
+            <div id="filter-bar" class="d-flex align-items-center p-3" style="background-color: #e9ecef; justify-content: right;">
+                <!-- Dropdown for filtering by report type -->
+                <div class="filter-dropdown me-3">
+                    <label for="report-filter" class="me-2">Filter by:</label>
+                    <select id="report-filter" class="form-select" style="width: 200px;">
+                        <option value="all">All Reports</option>
+                        <option value="burglary">Burglary</option>
+                        <option value="vandalism">Vandalism</option>
+                        <option value="assault">Assault</option>
+                    </select>
+                </div>
 
-<section class="container text-center">
-    <div class="d-flex justify-content-center">
-        <input type="text" id="address-input" placeholder="Enter Address" class="form-control mb-3 me-2" />
-        <input type="number" id="distance-input" placeholder="Distance (m)" class="form-control mb-3" />
-        <button id="fetch-reports" class="btn btn-primary mb-3">Fetch Report</button>
+                <div>
+                    <!-- Time input for filtering -->
+                    <div class="time-range d-flex align-items-center me-3 ms-auto" id="time-range">
+                        <label for="time-filter" class="me-2">Time:</label>
+                        <input type="time" id="time-filter" class="form-control me-2" disabled/>
+                    </div>
+
+                    <!-- Checkbox to toggle time filter -->
+                    <div class="time-toggle me-2 ms-auto">
+                        <input type="checkbox" id="toggle-time-filter" />
+                        <label for="toggle-time-filter" class="ms-1">Use Time Filter</label>
+                    </div>
+
+                    <!-- Apply button -->
+                    <button id="apply-filter" class="btn btn-secondary ms-auto">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Map to Select Location -->
+        <div class="col-lg-9 col-md-8">
+            <div id="selection-map" style="height: 70vh;"></div>
+        </div>
+
+        <!-- Side Panel for Reports -->
+        <div class="col-lg-3 col-md-4" id="side-panel" style="background-color: #f8f9fa; padding: 20px; height: 100vh; position: relative;">
+            <h4>Reports</h4>
+
+            <!-- Input Form Section (fixed at the top of the side panel) -->
+            <div class="input-section" style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 100; padding-bottom: 10px;">
+                <input type="text" id="address-input" placeholder="Enter Address" class="form-control mb-3" />
+                <ul class="suggestions" id="suggestion-box"></ul>
+                <input type="number" id="distance-input" placeholder="Distance (m)" class="form-control mb-3" value=1000 />
+                <button id="fetch-reports" class="btn btn-primary mb-3">Fetch Report</button>
+            </div>
+
+            <!-- Container for Dynamic Report Blocks (scrollable) -->
+            <div id="reports-container" style="max-height: calc(100vh - 150px); overflow-y: auto; padding-top: 10px;">
+                <!-- Dynamically added report blocks will go here -->
+            </div>
+        </div>
     </div>
 </section>
 
@@ -108,7 +175,7 @@
 
 <!-- Footer -->
 <footer class="text-center mt-4">
-    <p>&copy; 2024 Sicher | All Rights Reserved</p>
+    <p>&copy; 2024 Grapevine | All Rights Reserved</p>
 </footer>
 </body>
 </html>

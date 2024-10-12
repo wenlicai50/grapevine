@@ -17,14 +17,21 @@ async function connect(){
 //user report => map => DONE
 //fix navbar => DONE
 //make form dependant on report type DONE
+//add circles to points DONE
+//differentiate user and report points (by color?)  DONE
+//user ratings => DONE
+//add sidebar for report viewing => basically done
 
-//differentiate user and report points (by color?)
-//add circles to points
 
-//add sidebar for report viewing
-//filter reports when displayed on map
-//display points near user location => HALFWAY DONE
 //highlight dangerous areas (harder) color based on timestamp
+    // incident filter
+    // rotate time (3 before 3 after)
+
+
+//filter reports when displayed on map => FUCK SHIT FUCK SHIT FUCK 
+//display points near user location => literally just get user location and query in url
+
+
 //bonus points for highlighting dangerous areas between user and destination
 
 const homeRoute = require("./pages/home/index.js")
