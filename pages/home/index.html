@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Tech Demo with Leaflet Map and Form</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      .suggestions {
+        position: absolute; /* Position it absolutely */
+        top: 100%; /* Align it below the input */
+        left: 0; /* Align it with the left side of the input */
+        width: 100%; /* Make it the same width as the input */
+        padding: 0; /* Remove padding */
+        margin: 0; /* Remove margin */
+        list-style-type: none; /* Remove bullet points */
+        border: 1px solid #ccc; /* Add a border */
+        background-color: #fff; /* Set background color */
+        z-index: 1000; /* Make sure it appears above other elements */
+        display: none;
+      }
+
+      .suggestions li {
+        padding: 8px; /* Add some padding for list items */
+        cursor: pointer; /* Change cursor to pointer */
+      }
+
+      .suggestions li:hover {
+        background-color: #f1f1f1; /* Change background on hover */
+      }
+
+      .input-group .btn {
+        height: 100%; /* Make the button fill the full height of the input */
+        border-radius: 0 6px 6px 0;
+      }
+
+      body {
+        background-color: #f8f9fa; /* Light gray background for the page */
+      }
+      #selection-map {
+        height: 80vh; /* 70% of the viewport height for the map */
+        width: 100vw; /* Full viewport width for the map */
+        border-radius: 0; /* Remove border radius for full span */
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        position: relative; /* Position relative for absolute children */
+      }
+      .map-controls {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Centering the controls */
+        display: flex;
+        align-items: center; /* Align items vertically */
+        z-index: 1001; /* Make sure controls are above the map */
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.9
+        ); /* Slight background for better visibility */
+        padding: 15px 15px 15px 5px; /* Adjusted padding for a more compact look */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); /* Thinner shadow */
+        gap: 10px; /* Space between the elements */
+      }
+      .options {
+        display: flex; /* Display items side by side */
+        align-items: center; /* Center vertically */
+        height: 37px; /* Set a fixed height for alignment */
+      }
+      .options a {
+        margin: 0 10px; /* Spacing between links */
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: bold; /* Make the text bold */
+        padding: 12px 24px; /* Padding for buttons */
+        border-radius: 5px; /* Rounded corners for buttons */
+        background-color: #741433; /* Button background color */
+        height: 100%; /* Match the height of the input */
+        display: flex; /* Flex display for centering text */
+        align-items: center; /* Center text vertically */
+        justify-content: center; /* Center text horizontally */
+      }
+
+      .options a:hover {
+        background-color: #741433; /* Darker blue on hover */
+        transform: translateY(-2px); /* Lift effect on hover */
+      }
+      .map-controls input[type="text"] {
+        padding: 8px; /* Padding for input */
+        border: 1px solid #ccc; /* Border for input */
+        border-radius: 5px; /* Rounded corners for input */
+        width: 150px; /* Reduced width for the input box */
+        height: 100%; /* Match height of the link */
+      }
+      .or {
+        margin: 0 10px; /* Spacing around the 'or' */
+        font-weight: bold; /* Make the 'or' bold */
+        font-size: 18px; /* Font size for 'or' */
+        color: #333; /* Dark color for contrast */
+      }
+      footer {
+        padding: 20px 0; /* Padding for footer */
+        background-color: #343a40; /* Dark background for footer */
+        color: white; /* White text color for footer */
+      }
+    </style>
+  </head>
+  <body>
+    <section class="container-fluid my-0">
+      <div id="selection-map">
+        <div class="map-controls">
+          <h1 class="grapevine-title text-center mb-4">Grapevine</h1>
+          <p class="grapevine-title" id="desc">Spot it, Share it, Secure it</p>
+          <div class="options" style="position: relative">
+            <a style="width:300px" href="../report/index.html">Submit a Report</a>
+            <span class="or">or</span>
+            <div class="input-group">
+              <!-- Use an input group to align the input and button -->
+              <input
+                type="text"
+                id="address"
+                placeholder="Enter address"
+                required
+                autocomplete="off"
+                class="form-control"
+              />
+              <!-- Textbox for address input -->
+              <div class="input-group-append">
+                <button id="go-button" class="btn btn-primary" type="button">
+                  Go
+                </button>
+                <!-- Go button -->
+              </div>
+            </div>
+            <ul
+              class="suggestions"
+              id="suggestion-box"
+              style="padding: 0; margin: 0"
+            ></ul>
+            <!-- Suggestions box -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Custom JS for Leaflet Map -->
+    <script src="map.js" class="background-map"></script>
+
+    <!-- About Grapevine Section -->
+    <section id="about-grapevine" class="about-section text-center mt-4">
+      <div class="container">
+        <img
+          src="https://png.pngtree.com/png-vector/20230901/ourmid/pngtree-vine-plant-logo-design-vector-illustration-linework-style-png-image_7023991.png"
+          alt="Grapevine"
+          class="logo"
+        />
+        <h2>About Grapevine</h2>
+        <p>
+          Welcome to Grapevine, your trusted platform for discovering
+          neighborhood reports and exploring your community with confidence. Our
+          map-based interface helps you stay informed of local incidents,
+          allowing you to plan your trips safely and share reports in real-time.
+        </p>
+        <p>
+          Join us in creating a more transparent and informed community, where
+          knowledge fosters safety and exploration. Together, we can ensure that
+          everyone has the tools to make well-informed decisions.
+        </p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center mt-4">
+      <p>&copy; 2024 Grapevine | All Rights Reserved</p>
+    </footer>
+  </body>
+</html>
