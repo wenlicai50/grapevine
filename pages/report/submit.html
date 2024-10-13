@@ -33,21 +33,16 @@
 
         .btn-custom:hover {
             background-color: #741433;
-            /* Darken the primary button on hover */
         }
 
         .btn-custom:active {
             transform: scale(0.95);
-            /* Slightly scale down on click */
         }
 
         .button-container {
             display: flex;
-            /* Use flexbox for layout */
             justify-content: center;
-            /* Center the buttons */
             gap: 10px;
-            /* Space between buttons */
         }
     </style>
 
@@ -91,7 +86,6 @@
 
     <script>
         function handleButtonClick() {
-            // Simulate haptic feedback by changing button color briefly
             const buttons = document.querySelectorAll('.btn-custom');
             buttons.forEach(btn => {
                 btn.classList.add('active');
