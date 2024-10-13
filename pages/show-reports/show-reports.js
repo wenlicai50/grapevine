@@ -12,6 +12,24 @@ var userMarker;
 var selectionMarker;
 var markers = []
 var marker_circles = []
+const optionMap = {
+    "food": "Food",
+    "attractions": "Attractions",
+    "activities": "Activities",
+    "transportation": "Transportation",
+    "accommodation": "Accommodation",
+    "shopping": "Shopping",
+    "events": "Events",
+    "nature-outdoors": "Nature & Outdoors",
+    "culture": "Culture",
+    "theft": "Theft",
+    "vandalism": "Vandalism",
+    "assault": "Assault",
+    "burglary": "Burglary",
+    "robbery": "Robbery",
+    "drug-related incidents": "Drug-Related Incidents",
+    "domestic-violence": "Domestic Violence"
+};
 
 // Populate the results when the page loads
 window.onload = populateResults;
@@ -22,7 +40,6 @@ document.getElementById('toggle-time-filter').addEventListener('change', functio
     if (this.checked) {
         timeRange.disabled = false; // Show the time input
     } else {
-        console.log("a")
         timeRange.disabled = true; // Hide the time input
     }
 });
@@ -46,16 +63,21 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 
 function getFilterValues() {
+    const genReportFilterValue = document.getElementById('general-report-filter').value ? 
+    document.getElementById('general-report-filter').value : undefined;
+
     // Get the selected value from the dropdown
-    const reportFilterValue = document.getElementById('report-filter').value;
+    const reportFilterValue = document.getElementById('report-filter').value ? 
+    document.getElementById('report-filter').value : undefined;
 
     // Get the time input value, checking if the toggle is enabled
     const timeFilterValue = document.getElementById('toggle-time-filter').checked
         ? document.getElementById('time-filter').value
-        : null; // If not checked, return null or some default value
+        : undefined; 
 
     // Return an object containing the filter values
     return {
+        genReportType: genReportFilterValue,
         reportType: reportFilterValue,
         time: timeFilterValue
     };
@@ -88,14 +110,12 @@ async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters){
                 body: JSON.stringify({lat: lat, lng: lng, dist: dist, filters:filters}) // Send the report ID in the request body
             })
             .then(response => {
-                console.log("gotten")
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 return response.json(); // Parse the JSON from the response
             })
             .then(data => {
-                console.log("post response")
                 clearReports()
                 if (selectionMarker) {
                     selectionMap.removeLayer(selectionMarker);
@@ -109,7 +129,6 @@ async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters){
                 userMarker = L.marker([lat, lng]).addTo(selectionMap).bindPopup('You are here!')
                 .openPopup();
                 userMarker._icon.style.filter = "hue-rotate(120deg)"
-                console.log(userMarker)
 
                 markers.forEach(marker => {
                     selectionMap.removeLayer(marker); // Remove each marker from the map
@@ -121,8 +140,20 @@ async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters){
                 marker_circles = [];
     
                 for (var report of data) {
-                    addReport(report._id.toString(), report.subtype, report.username, report.address, report.comment, report.rating)
+                    let date = new Date(report.timestamp)
+                    let hours = date.getHours()
+                    let minutes = date.getMinutes()
+                    if (minutes < 10) {
+                        minutes = '0' + minutes;
+                    }
+                
+                    // Format hours to 2 digits if needed (for 24-hour format)
+                    if (hours < 10) {
+                        hours = '0' + hours;
+                    }
 
+                    addReport(report._id.toString(), optionMap[report.subtype], report.username, report.address, report.comment, report.rating, hours + ":" + minutes)
+                    
                     const lat = report.lat;
                     const lng = report.lng;
     
@@ -132,10 +163,11 @@ async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters){
     
                     const marker = L.marker([lat, lng]).addTo(selectionMap);
                     marker.bindPopup(`
-                        <b>${report.subtype}</b><br>
+                        <b>${optionMap[report.subtype]}</b><br>
                         Name: ${report.username ? report.username : "Anonymous"}<br>
                         Comment: ${report.comment}<br>
                         Address: ${report.address}<br>
+                        Time: ${hours + ":" + minutes}<br>
                         `)
                         .openPopup(); // Optional: opens popup on marker
     
@@ -156,7 +188,6 @@ async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters){
                     markers.push(marker);
                     marker_circles.push(marker_circle)
                 }
-    
     
                 selectionMap.setView([lat, lng], 16)
             })
@@ -179,17 +210,12 @@ async function updateVote(id, incr){
         return response.json(); // Parse the JSON from the response
     })
     .then(async data => {
-        clearReports()
-        const params = getQueryParams()
-        if(Object.keys(params).length == 3){
-            await fetchAndDisplayAllWithinDist(params.lat, params.lng, params.dist)
-        } else {
-            const address = document.getElementById('address-input').value.trim();
-            const distance = document.getElementById('distance-input').value.trim();
-            await geocodeAddress(address);
-            await fetchAndDisplayAllWithinDist(form_lat, form_lng, distance)
+        const reportBlock = document.getElementById(`report-${id}`);
+        if (reportBlock) {
+            // Find the voteNumber element within the report block
+            const voteNumber = reportBlock.querySelector('span.mx-2'); // Target the voteNumber span
+            voteNumber.textContent = data.rating; // Set the new vote count
         }
-
     })
 }
 
@@ -202,7 +228,7 @@ function clearReports(){
     }
 }
 
-function addReport(id, title, name, address, description, rating) {
+function addReport(id, title, name, address, description, rating, timestamp) {
     const reportsContainer = document.getElementById('reports-container');
 
     // Create a new div for the report
@@ -228,6 +254,9 @@ function addReport(id, title, name, address, description, rating) {
 
     const commentParagraph = document.createElement('p');
     commentParagraph.textContent = `Description: ${description}`;
+
+    const timestampParagraph = document.createElement('p');
+    timestampParagraph.textContent = `Time: ${timestamp}`;
 
     // Create upvote/downvote buttons and number
     const voteContainer = document.createElement('div');
@@ -260,6 +289,7 @@ function addReport(id, title, name, address, description, rating) {
     cardBody.appendChild(nameParagraph);
     cardBody.appendChild(addressParagraph);
     cardBody.appendChild(commentParagraph);
+    cardBody.appendChild(timestampParagraph);
     cardBody.appendChild(voteContainer);
 
     // Append card body to the report block (card)
@@ -328,7 +358,6 @@ async function geocodeAddress(address) {
                 var lat = parseFloat(data[0].lat);
                 var lng = parseFloat(data[0].lon);
 
-                console.log(lat)
                 form_lat = lat ? lat : form_lat
                 form_lng = lng ? lng : form_lng
 
@@ -386,13 +415,10 @@ function getQueryParams() {
 // Function to populate the list with query parameters
 async function populateResults() {
     const params = getQueryParams();
-    console.log(Object.keys(params))
     if(Object.keys(params).length == 3){
-        console.log("b ")
         form_lat = params.lat
         form_lng = params.lng
-        await fetchAndDisplayAllWithinDist(params.lat, params.lng, params.dist, {reportType:"all", time: undefined})
-        console.log("post await")
+        await fetchAndDisplayAllWithinDist(params.lat, params.lng, params.dist, getFilterValues())
     }
 }
 
@@ -402,7 +428,6 @@ function changeMarkerOpacity(report){
     const timeElapsed = currentDate - reportDate; //returns milliseconds
     const minOpacity = 24 * 60 * 60 * 1000; 
     const opacity = 1 - Math.min(Math.max(timeElapsed / minOpacity, 0), 1); //return opacity between 0 and 1
-    console.log(`Opacity Level: ${opacity}`);
     return opacity;
 }
 
@@ -419,7 +444,7 @@ function changeSymbol(report) {
                 symbol = "🎨"; 
                 break;
             case "assault":
-                symbol = "⚠️"; 
+                symbol = '<img src="assets/assault.png" alt="theft" width="30" height="30">'; 
                 break;
             case "burglary":
                 symbol = "🏠🔓"; 
@@ -431,7 +456,7 @@ function changeSymbol(report) {
                 symbol = "👥"; 
                 break;
             case "drug-related incidents":
-                symbol = "💊"; 
+                symbol = '<img src="assets/drug-related-incidents.png" alt="theft" width="30" height="30">'; 
                 break;
             case "domestic violence":
                 symbol = "🏠❤️"; 
@@ -458,13 +483,13 @@ function changeSymbol(report) {
                 symbol = "🏨";
                 break;
             case "shopping":
-                symbol = "🛍️"; 
+                symbol = '<img src="assets/shopping.png" alt="theft" width="30" height="30">'; 
                 break;
             case "events":
-                symbol = "🎉"; 
+                symbol = '<img src="assets/events.png" alt="theft" width="30" height="30">'; 
                 break;
-            case "nature & outdoors":
-                symbol = "🌳"; 
+            case "nature-outdoors":
+                symbol = '<img src="assets/nature-outdoors.png" alt="theft" width="30" height="30">'; 
                 break;
             case "culture":
                 symbol = "🎨"; 
@@ -474,7 +499,6 @@ function changeSymbol(report) {
                 break;
         }
     }
-    console.log(`Symbol for ${report.reportType} - ${report.reportSubtype}: ${symbol}`);
     return symbol; 
 }
 

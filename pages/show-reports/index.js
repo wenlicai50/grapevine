@@ -13,11 +13,17 @@ router.get('/', (req, res) => {
 router.post('/find', async (req, res) => {
     const filters = req.body.filters
     var reports;
-    console.log(req.body)
-    if(filters.reportType == "all"){
+    if(filters.genReportType == "all"){
         reports = await Report.find({})
     } else {
-        reports = await Report.find({reportType: filters.reportType})
+        reports = await Report.find({reportType: filters.genReportType})
+    }
+
+    //filter by subtype
+    if(filters.reportType != "all"){
+        reports = reports.filter(report => {
+            return report.subtype == filters.reportType
+        })
     }
 
     if(filters.time){
@@ -25,8 +31,6 @@ router.post('/find', async (req, res) => {
             let hour = parseInt(filters.time.substring(0,2))
             let minute = parseInt(filters.time.substring(3))
             reportDate = new Date(report.timestamp)
-            console.log(reportDate.getHours())
-            console.log(Math.abs(reportDate.getHours() - hour))
 
             return Math.abs(reportDate.getHours() - hour) < 3
         })
@@ -35,18 +39,14 @@ router.post('/find', async (req, res) => {
     var returned_reports = []
     for(const report of reports){
         if(haversine({latitude: report.lat, longitude: report.lng}, {latitude: req.body.lat, longitude: req.body.lng}) < req.body.dist){
-            // console.log(report)
             returned_reports.push(report)
         }
     }
-    console.log("sending")
     res.send(JSON.stringify(returned_reports))
 })
 
 router.post('/vote', async (req, res) => {
-    console.log(req.body.id)
     const report = await findReportById(new mongoose.Types.ObjectId(req.body.id))
-    console.log(report)
     report.updateOne({rating: report.rating += req.body.incr})
     report.save()
 

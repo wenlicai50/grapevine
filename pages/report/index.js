@@ -17,7 +17,6 @@ router.get("/form_submit", (req, res) => {
 })
 
 router.post("/map", async (req, res) => {
-    console.log(req.body)
     try {
     const report = new Report({
         username: req.body.name,

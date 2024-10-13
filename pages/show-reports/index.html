@@ -24,7 +24,7 @@
             overflow-y: auto;
             position: absolute;
             background-color: white;
-            z-index: 1000;
+            z-index: 10;
         }
         .suggestions li {
             padding: 10px;
@@ -50,7 +50,7 @@
             transform: translate(-50%, -50%); /* Centering the controls */
             display: flex;
             align-items: center; /* Align items vertically */
-            z-index: 1001; /* Make sure controls are above the map */
+            z-index: 9; /* Make sure controls are above the map */
             background-color: rgba(255, 255, 255, 0.9); /* Slight background for better visibility */
             padding: 20px; /* Increased padding for a better look */
             border-radius: 10px; /* Rounded corners */
@@ -107,14 +107,29 @@
     <div class="row">
         <div class="col-12">
             <div id="filter-bar" class="d-flex align-items-center p-3" style="background-color: #e9ecef; justify-content: right;">
+                <div class="filter-general-dropdown me-3">
+                    <label for="general-report-filter" class="me-2">Filter by Report Type:</label>
+                    <select id="general-report-filter" class="form-select" style="width: 200px;">
+                        <option value="all">All</option>
+                        <option value="Recommendation">Recommendations</option>
+                        <option value="Incident">Incidents</option>
+                    </select>
+                </div>
                 <!-- Dropdown for filtering by report type -->
                 <div class="filter-dropdown me-3">
-                    <label for="report-filter" class="me-2">Filter by:</label>
+                    <label for="report-filter" class="me-2">Filter by Report Subtype:</label>
                     <select id="report-filter" class="form-select" style="width: 200px;">
-                        <option value="all">All Reports</option>
-                        <option value="burglary">Burglary</option>
-                        <option value="vandalism">Vandalism</option>
+                    <option value="all">All Reports</option>
+                    <optgroup label="Reports">
+                        <option value="theft">Theft</option>
+                        <option value="drug-related incidents">Drug-Related Incidents</option>
                         <option value="assault">Assault</option>
+                    </optgroup>
+                    <optgroup label="Recommendations">
+                        <option value="shopping">Shopping</option>
+                        <option value="events">Events</option>
+                        <option value="nature-outdoors">Nature and Outdoors</option>
+                    </optgroup>
                     </select>
                 </div>
 
@@ -157,7 +172,7 @@
             </div>
 
             <!-- Container for Dynamic Report Blocks (scrollable) -->
-            <div id="reports-container" style="max-height: calc(100vh - 150px); overflow-y: auto; padding-top: 10px;">
+            <div id="reports-container" style="max-height: calc(100vh - 300px); overflow-y: auto; padding-top: 10px;">
                 <!-- Dynamically added report blocks will go here -->
             </div>
         </div>
@@ -174,7 +189,7 @@
 <script src="show-reports.js"></script>
 
 <!-- Footer -->
-<footer class="text-center mt-4">
+<footer style="position:relative; z-index:1000;"class="text-center mt-4">
     <p>&copy; 2024 Grapevine | All Rights Reserved</p>
 </footer>
 </body>

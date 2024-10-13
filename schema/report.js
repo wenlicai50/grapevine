@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// Define Report schema
+//report schema
 const reportSchema = new mongoose.Schema({
 username: {
     type: String,
@@ -20,16 +20,14 @@ lng: {
 }, 
 timestamp: {
     type: Date,
-    required: function() {
-        return this.reportType === 'crime'; // Timestamp required only for "crime" reports
-    },
+    required: true
 },
 reportType: {
-    type: String, // e.g., "crime", "recommendation", etc.
+    type: String, //incident or recommendation
     required: true,
 },
 subtype: {
-    type: String, // e.g., "subtype1", "subtype2", etc.
+    type: String, // subtype of type, such as event/shopping and theft/assault
     required: true,
 },
 comment: {
@@ -42,5 +40,4 @@ rating: {
 }
 });
 
-// Create the Report model
 module.exports = mongoose.model('Report', reportSchema);

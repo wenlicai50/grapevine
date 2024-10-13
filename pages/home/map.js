@@ -20,15 +20,13 @@ var selectionMarker;
 // Try to get the user's current location
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-        function(position) {
+        async function(position) {
             var lat = position.coords.latitude;
             var lng = position.coords.longitude;
 
             // Set the view to the user's location
             selectionMap.setView([lat, lng], 13);
-
-            // Add a marker for the user's location
-         
+            document.getElementById('address').value = await reverseGeocode(lat, lng)
         },
         function() {
             alert("Unable to retrieve your location.");
@@ -47,7 +45,7 @@ document.getElementById('go-button').addEventListener('click', async function() 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({lat: coords[0], lng: coords[1], dist: 1000, filters:{reportType:"all", time: undefined}}) // Send the report ID in the request body
+            body: JSON.stringify({lat: coords[0], lng: coords[1], dist: 1000, filters:{genReportType:"all", reportType:"all", time: undefined}}) // Send the report ID in the request body
         })
         .then(response => {
             if (!response.ok) {
@@ -74,7 +72,6 @@ function reverseGeocode(lat, lng) {
         .then(data => {
             var address = data.display_name || 'Unknown location';
             document.getElementById('address').value = address; // Update address input field
-            selectionMarker.bindPopup(`<b>Selected Location:</b><br>${address}`).openPopup();
         })
         .catch(err => {
             console.error('Error in reverse geocoding:', err);
@@ -96,8 +93,6 @@ async function geocodeAddress(address) {
             if (data && data.length > 0) {
                 lat = parseFloat(data[0].lat);
                 lng = parseFloat(data[0].lon);
-                console.log(lat)
-                console.log("lat")
             } else {
                 alert('Address not found.');
             }
@@ -137,7 +132,6 @@ function debounce(func, delay) {
 
 // Add an input event listener for suggestions with debounce
 addressInput.addEventListener('input', debounce(function() {
-    console.log("a")
     var query = addressInput.value;
 
     // Clear suggestions if new input is entered
@@ -150,7 +144,6 @@ addressInput.addEventListener('input', debounce(function() {
                 if (data && data.length > 0) {
                     suggestionBox.style.display = 'block'; 
                     data.forEach(item => {
-                        console.log(item)
                         var li = document.createElement('li');
                         li.innerHTML = highlightMatch(item.display_name, query); // Highlight matching part
                         li.onclick = function() {

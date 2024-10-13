@@ -77,7 +77,6 @@ function reverseGeocode(lat, lng) {
 // Handle form submission
 document.getElementById('location-form').addEventListener('submit', async function(e) {
     e.preventDefault(); // Prevent form from refreshing the page
-
     const timeValue = document.getElementById('time').value;
     const currentDateTime = new Date((new Date()).toDateString() + ' ' + timeValue);
 
@@ -88,11 +87,10 @@ document.getElementById('location-form').addEventListener('submit', async functi
         lng: form_lng,
         time: currentDateTime.toISOString() ? currentDateTime.toISOString() : new Date(),
         reportType: document.getElementById('report-type').value.trim(),
-        reportSubtype: document.getElementById('report-subtype').value.trim() ? document.getElementById('report-subtype').value.trim(): "None",
+        reportSubtype: document.getElementById('report-subtype').value.trim() ? document.getElementById('report-subtype').value.trim(): document.getElementById('recommendation-subtype').value.trim(),
         comment: document.getElementById('comment').value.trim()
     };
 
-    console.log(`${form_lat} ${form_lng}`)
     const addressField = document.getElementById('address');
     const addressWarning = document.getElementById('address-warning');
 
@@ -113,7 +111,7 @@ document.getElementById('location-form').addEventListener('submit', async functi
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
-    }).then((res) => {console.log(res); window.location = res.url});
+    }).then((res) => {window.location = res.url});
 });
 
 // Loading reporting form based on recommendation
@@ -136,7 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add event listener to the report type dropdown
     reportTypeField.addEventListener('change', function() {
-        console.log("a")
         if (this.value === 'Incident') {
             incidentFields.style.display = 'block';
             recommendationFields.style.display = 'none';
@@ -146,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
             incidentFields.style.display = 'none';
             timeDiv.style.display = 'none'
         } else {
-            console.log("3")
             incidentFields.style.display = 'none';
             recommendationFields.style.display = 'none';
             timeDiv.style.display = 'none'
