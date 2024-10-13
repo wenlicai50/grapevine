@@ -23,7 +23,7 @@ router.post("/map", async (req, res) => {
         address: req.body.address,
         lat: req.body.lat,
         lng: req.body.lng,
-        timestamp: req.body.time, //THIS IS IN ISO FORMAT WE HAVE TO DECODE THIS INTO THE **LOCATION'S** TIMEZONE
+        timestamp: req.body.time,
         reportType: req.body.reportType,
         subtype: req.body.reportSubtype,
         comment: req.body.comment,

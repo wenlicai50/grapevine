@@ -1,14 +1,7 @@
 var form_lat = undefined
 var form_lng = undefined
-
-// fetch-reports.js
-//60, Shepard Street, Old Cambridge, Cambridge, Middlesex County, Massachusetts, 02140, United States
-
-// Map for selecting the location
-var selectionMap = L.map('selection-map').setView([37.0902, -95.7129], 4); // Centered on the U.S.
-//user location
+var selectionMap = L.map('selection-map').setView([37.0902, -95.7129], 4);
 var userMarker;
-//NOT user location, this is the location they click on
 var selectionMarker;
 var markers = []
 var marker_circles = []
@@ -31,55 +24,54 @@ const optionMap = {
     "domestic-violence": "Domestic Violence"
 };
 
-// Populate the results when the page loads
 window.onload = populateResults;
 
-document.getElementById('toggle-time-filter').addEventListener('change', function() {
+document.getElementById('toggle-time-filter').addEventListener('change', function () {
     const timeRange = document.getElementById('time-filter');
 
     if (this.checked) {
-        timeRange.disabled = false; // Show the time input
+        timeRange.disabled = false;
     } else {
-        timeRange.disabled = true; // Hide the time input
+        timeRange.disabled = true;
     }
 });
 
-document.getElementById('time-filter').addEventListener('click', function() {
-    this.showPicker(); // Open the time picker dropdown programmatically
+document.getElementById('time-filter').addEventListener('click', function () {
+    this.showPicker();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const timeInput = document.getElementById('time-filter');
 
-    // Get the current date and time
     const now = new Date();
 
-    // Format the time to HH:MM
-    const hours = String(now.getHours()).padStart(2, '0'); // Get hours and pad with leading zero
-    const minutes = String(now.getMinutes()).padStart(2, '0'); // Get minutes and pad with leading zero
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
 
-    // Set the value of the time input
     timeInput.value = `${hours}:${minutes}`;
 })
 
 function getFilterValues() {
-    const genReportFilterValue = document.getElementById('general-report-filter').value ? 
-    document.getElementById('general-report-filter').value : undefined;
+    const genReportFilterValue = document.getElementById('general-report-filter').value ?
+        document.getElementById('general-report-filter').value : undefined;
 
-    // Get the selected value from the dropdown
-    const reportFilterValue = document.getElementById('report-filter').value ? 
-    document.getElementById('report-filter').value : undefined;
+    const reportFilterValue = document.getElementById('report-filter').value ?
+        document.getElementById('report-filter').value : undefined;
 
-    // Get the time input value, checking if the toggle is enabled
-    const timeFilterValue = document.getElementById('toggle-time-filter').checked
-        ? document.getElementById('time-filter').value
-        : undefined; 
+    const timeFilterValue = document.getElementById('toggle-time-filter').checked ?
+        document.getElementById('time-filter').value :
+        undefined;
+    let date;
+    if (timeFilterValue) {
+        date = new Date()
+        date.setHours(timeFilterValue.substring(0, 2))
+        date.setMinutes(timeFilterValue.substring(3))
+    }
 
-    // Return an object containing the filter values
     return {
         genReportType: genReportFilterValue,
         reportType: reportFilterValue,
-        time: timeFilterValue
+        time: timeFilterValue ? date : undefined
     };
 }
 
@@ -92,137 +84,127 @@ async function getReports() {
     if (address) {
         await fetchAndDisplayAllWithinDist(form_lat, form_lng, distance, filters)
     } else {
-        //TODO
-        alert('Please enter a valid address'); // Prompt for report ID if empty
+        alert('Please enter a valid address');
     }
 }
 
 document.getElementById('fetch-reports').addEventListener('click', getReports);
 document.getElementById('apply-filter').addEventListener('click', getReports)
 
-async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters){
-            // Send a POST request to /show-reports/find
-            await fetch('/show-reports/find', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({lat: lat, lng: lng, dist: dist, filters:filters}) // Send the report ID in the request body
+async function fetchAndDisplayAllWithinDist(lat, lng, dist, filters) {
+    await fetch('/show-reports/find', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                lat: lat,
+                lng: lng,
+                dist: dist,
+                filters: filters
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // Parse the JSON from the response
-            })
-            .then(data => {
-                clearReports()
-                if (selectionMarker) {
-                    selectionMap.removeLayer(selectionMarker);
-                }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            clearReports()
+            if (selectionMarker) {
+                selectionMap.removeLayer(selectionMarker);
+            }
 
-                if(userMarker){
-                    selectionMap.removeLayer(userMarker);
-                }
-                
-                // Add a new marker at clicked location
-                userMarker = L.marker([lat, lng]).addTo(selectionMap).bindPopup('You are here!')
+            if (userMarker) {
+                selectionMap.removeLayer(userMarker);
+            }
+
+            userMarker = L.marker([lat, lng]).addTo(selectionMap).bindPopup('You are here!')
                 .openPopup();
-                userMarker._icon.style.filter = "hue-rotate(120deg)"
+            userMarker._icon.style.filter = "hue-rotate(120deg)"
 
-                markers.forEach(marker => {
-                    selectionMap.removeLayer(marker); // Remove each marker from the map
-                });
-                marker_circles.forEach(circle => {
-                    selectionMap.removeLayer(circle)
-                })
-                markers = [];
-                marker_circles = [];
-    
-                for (var report of data) {
-                    let date = new Date(report.timestamp)
-                    let hours = date.getHours()
-                    let minutes = date.getMinutes()
-                    if (minutes < 10) {
-                        minutes = '0' + minutes;
-                    }
-                
-                    // Format hours to 2 digits if needed (for 24-hour format)
-                    if (hours < 10) {
-                        hours = '0' + hours;
-                    }
+            markers.forEach(marker => {
+                selectionMap.removeLayer(marker);
+            });
+            marker_circles.forEach(circle => {
+                selectionMap.removeLayer(circle)
+            })
+            markers = [];
+            marker_circles = [];
 
-                    addReport(report._id.toString(), optionMap[report.subtype], report.username, report.address, report.comment, report.rating, hours + ":" + minutes)
-                    
-                    const lat = report.lat;
-                    const lng = report.lng;
-    
-                    // Get the symbol and opacity for this report
-                    const opacity = changeMarkerOpacity(report); // Assuming changeMarkerOpacity takes the report as argument
-                    const symbol = changeSymbol(report); // Assuming changeSymbol takes the report as argument
-    
-                    const marker = L.marker([lat, lng]).addTo(selectionMap);
-                    marker.bindPopup(`
+            for (var report of data) {
+                addReport(report._id.toString(), optionMap[report.subtype], report.username, report.address, report.comment, report.rating, new Date(report.timestamp))
+
+                const lat = report.lat;
+                const lng = report.lng;
+
+                const opacity = changeMarkerOpacity(report);
+                const symbol = changeSymbol(report);
+
+                const marker = L.marker([lat, lng]).addTo(selectionMap);
+                marker.bindPopup(`
                         <b>${optionMap[report.subtype]}</b><br>
                         Name: ${report.username ? report.username : "Anonymous"}<br>
                         Comment: ${report.comment}<br>
                         Address: ${report.address}<br>
-                        Time: ${hours + ":" + minutes}<br>
+                        ${formatISODate(new Date(report.timestamp))}<br>
                         `)
-                        .openPopup(); // Optional: opens popup on marker
-    
-                    // Set the icon for the marker including opacity
-                    marker.setIcon(L.divIcon({
-                        className: 'custom-icon',
-                        html: `<div style="opacity: ${opacity};">${symbol || ''}</div>`,
-                        iconSize: [25, 41],
-                        iconAnchor: [15, 15],
-                    }));
+                    .openPopup();
 
-                    var marker_circle = L.circle(marker.getLatLng(), {
-                        color: 'steelblue',
-                        fillOpacity: 0.1,
-                        radius: 30
-                      }).addTo(selectionMap);
-    
-                    markers.push(marker);
-                    marker_circles.push(marker_circle)
-                }
-    
-                selectionMap.setView([lat, lng], 16)
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
+                marker.setIcon(L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="opacity: ${opacity};">${symbol || ''}</div>`,
+                    iconSize: [100, 100],
+                    iconAnchor: [15, 15],
+                }));
+
+                var marker_circle = L.circle(marker.getLatLng(), {
+                    color: report.reportType == "Incident" ? 'red' : 'steelblue',
+                    fillOpacity: 0.5 * opacity,
+                    radius: 30
+                }).addTo(selectionMap);
+                marker_circles.push(marker_circle)
+
+                markers.push(marker);
+
+            }
+
+            selectionMap.setView([lat, lng], 16)
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
 }
 
-async function updateVote(id, incr){
+async function updateVote(id, incr) {
     await fetch("/show-reports/vote", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({id: id, incr: incr}) // Send the report ID in the request body
-    }).then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json(); // Parse the JSON from the response
-    })
-    .then(async data => {
-        const reportBlock = document.getElementById(`report-${id}`);
-        if (reportBlock) {
-            // Find the voteNumber element within the report block
-            const voteNumber = reportBlock.querySelector('span.mx-2'); // Target the voteNumber span
-            voteNumber.textContent = data.rating; // Set the new vote count
-        }
-    })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: id,
+                incr: incr
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(async data => {
+            const reportBlock = document.getElementById(`report-${id}`);
+            if (reportBlock) {
+                const voteNumber = reportBlock.querySelector('span.mx-2');
+                voteNumber.textContent = data.rating;
+            }
+        })
 }
 
-function clearReports(){
+function clearReports() {
     const reportsContainer = document.getElementById('reports-container');
-    
-    // This will remove all child elements from the container
+
     while (reportsContainer.firstChild) {
         reportsContainer.removeChild(reportsContainer.firstChild);
     }
@@ -231,21 +213,17 @@ function clearReports(){
 function addReport(id, title, name, address, description, rating, timestamp) {
     const reportsContainer = document.getElementById('reports-container');
 
-    // Create a new div for the report
     const reportBlock = document.createElement('div');
-    reportBlock.classList.add('card', 'mb-3');  // Bootstrap card component
+    reportBlock.classList.add('card', 'mb-3');
     reportBlock.id = `report-${id}`;
 
-    // Create card body
     const cardBody = document.createElement('div');
     cardBody.classList.add('card-body');
 
-    // Create card title
     const cardTitle = document.createElement('h5');
     cardTitle.classList.add('card-title');
     cardTitle.textContent = title;
 
-    // Create card text
     const nameParagraph = document.createElement('p');
     nameParagraph.textContent = `Name: ${name}`;
 
@@ -256,35 +234,33 @@ function addReport(id, title, name, address, description, rating, timestamp) {
     commentParagraph.textContent = `Description: ${description}`;
 
     const timestampParagraph = document.createElement('p');
-    timestampParagraph.textContent = `Time: ${timestamp}`;
+    timestampParagraph.textContent = `${formatISODate(timestamp)}`;
 
-    // Create upvote/downvote buttons and number
     const voteContainer = document.createElement('div');
-    voteContainer.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mt-3'); // Flex container for buttons and number
+    voteContainer.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mt-3');
 
     const downVoteBtn = document.createElement('button');
     downVoteBtn.classList.add('btn', 'btn-outline-secondary');
-    downVoteBtn.innerHTML = '&darr;'; // Down arrow
-    downVoteBtn.addEventListener('click', function() {
-        updateVote(id, -1); // Call the updateVote function when clicked
+    downVoteBtn.innerHTML = '&darr;';
+    downVoteBtn.addEventListener('click', function () {
+        updateVote(id, -1);
     });
 
     const voteNumber = document.createElement('span');
-    voteNumber.classList.add('mx-2'); // Margin on both sides
-    voteNumber.textContent = `${rating}`; // Initial vote number (can be updated)
+    voteNumber.classList.add('mx-2');
+    voteNumber.textContent = `${rating}`;
 
     const upVoteBtn = document.createElement('button');
     upVoteBtn.classList.add('btn', 'btn-outline-secondary');
-    upVoteBtn.innerHTML = '&uarr;'; // Up arrow
-    upVoteBtn.addEventListener('click', function() {
-        updateVote(id, 1); // Call the updateVote function when clicked
+    upVoteBtn.innerHTML = '&uarr;';
+    upVoteBtn.addEventListener('click', function () {
+        updateVote(id, 1);
     });
 
     voteContainer.appendChild(downVoteBtn);
     voteContainer.appendChild(voteNumber);
     voteContainer.appendChild(upVoteBtn);
 
-    // Append title and text to the card body
     cardBody.appendChild(cardTitle);
     cardBody.appendChild(nameParagraph);
     cardBody.appendChild(addressParagraph);
@@ -292,37 +268,31 @@ function addReport(id, title, name, address, description, rating, timestamp) {
     cardBody.appendChild(timestampParagraph);
     cardBody.appendChild(voteContainer);
 
-    // Append card body to the report block (card)
     reportBlock.appendChild(cardBody);
 
-    // Append the report block to the reports container
     reportsContainer.appendChild(reportBlock);
 }
 
-// Add OpenStreetMap tiles for the selection map
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(selectionMap);
 
-// Try to get the user's current location
 if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-        function(position) {
+        function (position) {
             var lat = position.coords.latitude;
             var lng = position.coords.longitude;
 
             form_lat = lat
             form_lng = lng
 
-            // Set the view to the user's location
             selectionMap.setView([lat, lng], 13);
 
             if (userMarker) {
                 selectionMap.removeLayer(userMarker);
             }
 
-            // Add a marker for the user's location
             userMarker = L.marker([lat, lng]).addTo(selectionMap)
                 .bindPopup('You are here!')
                 .openPopup();
@@ -331,20 +301,16 @@ if (navigator.geolocation) {
     );
 }
 
-// Listen for click events on the selection map
-selectionMap.on('click', function(e) {
+selectionMap.on('click', function (e) {
     form_lat = e.latlng.lat;
     form_lng = e.latlng.lng;
 
-    // Remove existing marker if present
     if (selectionMarker) {
         selectionMap.removeLayer(selectionMarker);
     }
 
-    // Add a new marker at clicked location
     selectionMarker = L.marker([form_lat, form_lng]).addTo(selectionMap);
 
-    // Reverse geocode to get the address
     reverseGeocode(form_lat, form_lng);
 });
 
@@ -361,17 +327,14 @@ async function geocodeAddress(address) {
                 form_lat = lat ? lat : form_lat
                 form_lng = lng ? lng : form_lng
 
-                // Center the selection map on the new address
-                selectionMap.setView([lat, lng], 16); // Zoom level can be adjusted
+                selectionMap.setView([lat, lng], 16);
 
-                // Remove existing marker if present
                 if (selectionMarker) {
                     selectionMap.removeLayer(selectionMarker);
                 }
 
-                // Add a new marker at clicked location
                 selectionMarker = L.marker([lat, lng]).addTo(selectionMap).bindPopup('You are here!')
-                .openPopup();;
+                    .openPopup();;
 
                 return true;
             } else {
@@ -385,7 +348,6 @@ async function geocodeAddress(address) {
         });
 }
 
-// Reverse geocoding function
 function reverseGeocode(lat, lng) {
     var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&countrycodes=us`;
 
@@ -393,8 +355,7 @@ function reverseGeocode(lat, lng) {
         .then(response => response.json())
         .then(data => {
             var address = data.display_name || 'Unknown location';
-            document.getElementById('address-input').value = address; // Update address input field
-            selectionMarker.bindPopup(`<b>Selected Location:</b><br>${address}`).openPopup();
+            document.getElementById('address-input').value = address;
         })
         .catch(err => {
             console.error('Error in reverse geocoding:', err);
@@ -409,120 +370,83 @@ function getQueryParams() {
     while (m = regex.exec(queryString)) {
         params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
     }
-    return params;  
+    return params;
 }
-//60, Shepard Street, Old Cambridge, Cambridge, Middlesex County, Massachusetts, 02140, United States
-// Function to populate the list with query parameters
 async function populateResults() {
     const params = getQueryParams();
-    if(Object.keys(params).length == 3){
+    if (Object.keys(params).length == 3) {
         form_lat = params.lat
         form_lng = params.lng
+        let address = await reverseGeocode(form_lat, form_lng)
+        document.getElementById("address-input").value = address
         await fetchAndDisplayAllWithinDist(params.lat, params.lng, params.dist, getFilterValues())
     }
 }
 
-function changeMarkerOpacity(report){
-    const reportDate = new Date(report.timestamp); //time from report object
-    const currentDate = new Date(); 
-    const timeElapsed = currentDate - reportDate; //returns milliseconds
-    const minOpacity = 24 * 60 * 60 * 1000; 
-    const opacity = 1 - Math.min(Math.max(timeElapsed / minOpacity, 0), 1); //return opacity between 0 and 1
+function changeMarkerOpacity(report) {
+    const reportDate = new Date(report.timestamp);
+    const currentDate = new Date();
+    const timeElapsed = Math.abs(currentDate - reportDate);
+    const minOpacity = 2 * 24 * 60 * 60 * 1000;
+    const opacity = 1 - Math.min(Math.max(timeElapsed / minOpacity, 0), 1);
     return opacity;
 }
 
 function changeSymbol(report) {
-    let symbol = ""; //initialize
+    let symbol = "";
     const reportTypeLower = report.reportType.toLowerCase();
     const reportSubtypeLower = report.subtype.toLowerCase();
-    if (reportTypeLower=== "incident") {
+    if (reportTypeLower === "incident") {
         switch (reportSubtypeLower) {
             case "theft":
-                symbol = '<img src="assets/theft.png" alt="theft" width="30" height="30">'; 
-                break;
-            case "vandalism":
-                symbol = "🎨"; 
+                symbol = '<img src="assets/theft.png" alt="theft" width="30" height="30">';
                 break;
             case "assault":
-                symbol = '<img src="assets/assault.png" alt="theft" width="30" height="30">'; 
-                break;
-            case "burglary":
-                symbol = "🏠🔓"; 
-                break;
-            case "robbery":
-                symbol = "🕵️‍♂️"; 
-                break;
-            case "public disorder":
-                symbol = "👥"; 
+                symbol = '<img src="assets/assault.png" alt="theft" width="30" height="30">';
                 break;
             case "drug-related incidents":
-                symbol = '<img src="assets/drug-related-incidents.png" alt="theft" width="30" height="30">'; 
-                break;
-            case "domestic violence":
-                symbol = "🏠❤️"; 
+                symbol = '<img src="assets/drug-related-incidents.png" alt="theft" width="30" height="30">';
                 break;
             default:
-                symbol = "❓"; //no input
+                symbol = "❓";
                 break;
         }
     } else if (reportTypeLower === "recommendation") {
         switch (reportSubtypeLower) {
-            case "food":
-                symbol = "🍽️"; 
-                break;
-            case "attractions":
-                symbol = "🏛️"; 
-                break;
-            case "activities":
-                symbol = "🚴"; 
-                break;
-            case "transportation":
-                symbol = "🚌";
-                break;
-            case "accommodation":
-                symbol = "🏨";
-                break;
             case "shopping":
-                symbol = '<img src="assets/shopping.png" alt="theft" width="30" height="30">'; 
+                symbol = '<img src="assets/shopping.png" alt="theft" width="30" height="30">';
                 break;
             case "events":
-                symbol = '<img src="assets/events.png" alt="theft" width="30" height="30">'; 
+                symbol = '<img src="assets/events.png" alt="theft" width="30" height="30">';
                 break;
             case "nature-outdoors":
-                symbol = '<img src="assets/nature-outdoors.png" alt="theft" width="30" height="30">'; 
-                break;
-            case "culture":
-                symbol = "🎨"; 
+                symbol = '<img src="assets/nature-outdoors.png" alt="theft" width="30" height="30">';
                 break;
             default:
-                symbol = "❓"; //no input
+                symbol = "❓";
                 break;
         }
     }
-    return symbol; 
+    return symbol;
 }
 
-// Address suggestion handling
 var addressInput = document.getElementById('address-input');
 var suggestionBox = document.getElementById('suggestion-box');
 
-// Debounce function to limit API calls
 function debounce(func, delay) {
     let timeout;
-    return function(...args) {
+    return function (...args) {
         const context = this;
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(context, args), delay);
     };
 }
 
-// Add an input event listener for suggestions with debounce
-addressInput.addEventListener('input', debounce(function() {
+addressInput.addEventListener('input', debounce(function () {
     var query = addressInput.value;
 
-    // Clear suggestions if new input is entered
-    if (query.length > 2) { // Trigger suggestions after 2 characters
-        suggestionBox.innerHTML = ''; // Clear previous suggestions
+    if (query.length > 2) {
+        suggestionBox.innerHTML = '';
 
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us`)
             .then(response => response.json())
@@ -530,43 +454,53 @@ addressInput.addEventListener('input', debounce(function() {
                 if (data && data.length > 0) {
                     data.forEach(item => {
                         var li = document.createElement('li');
-                        li.innerHTML = highlightMatch(item.display_name, query); // Highlight matching part
-                        li.onclick = function() {
-                            // Set the input to the selected address and clear suggestions
-                            addressInput.value = item.display_name; // Set the input field to the selected address
-                            suggestionBox.innerHTML = ''; // Clear suggestions after selection
+                        li.innerHTML = highlightMatch(item.display_name, query);
+                        li.onclick = function () {
+                            addressInput.value = item.display_name;
+                            suggestionBox.innerHTML = '';
 
-                            // Display the selected location on the selection map without submitting
                             form_lat = item.lat;
                             form_lng = item.lon;
-                                // Remove existing marker if present
                             if (selectionMarker) {
                                 selectionMap.removeLayer(selectionMarker);
                             }
 
-                            // Add a new marker at the geocoded location
                             selectionMarker = L.marker([item.lat, item.lon]).addTo(selectionMap);
 
-                            // Bind the popup to show the address above the marker
                             selectionMarker.bindPopup(`<b>Selected Location:</b><br>${item.display_name}`).openPopup();
-                            selectionMap.setView([item.lat, item.lon], 13); // Center the map on the selected address
+                            selectionMap.setView([item.lat, item.lon], 13);
                         };
                         suggestionBox.appendChild(li);
                     });
                 } else {
                     form_lat = undefined;
                     form_lng = undefined;
-                    suggestionBox.innerHTML = '<li>No suggestions found</li>'; // Optional: show if no suggestions
+                    suggestionBox.innerHTML = '<li>No suggestions found</li>';
                 }
             })
             .catch(err => {
                 console.error('Error fetching suggestions:', err);
             });
     }
-}, 300)); // Adjust the debounce delay as needed
+}, 300));
 
-// Function to highlight matches in the suggestions
 function highlightMatch(address, query) {
     var regex = new RegExp(`(${query})`, 'gi');
-    return address.replace(regex, '<strong>$1</strong>'); // Bold matching parts
+    return address.replace(regex, '<strong>$1</strong>');
+}
+
+function formatISODate(isoString) {
+    const date = new Date(isoString);
+
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    };
+
+    return date.toLocaleString('en-US', options);
 }

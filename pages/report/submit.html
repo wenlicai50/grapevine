@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Tech Demo with Leaflet Map and Form</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body {
@@ -18,56 +17,90 @@
             display: flex;
             flex-direction: column;
         }
+
         .content {
             flex: 1 0 auto;
         }
+
         .footer {
             margin-top: auto;
             flex-shrink: 0;
         }
+
+        .btn-custom {
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .btn-custom:hover {
+            background-color: #741433;
+            /* Darken the primary button on hover */
+        }
+
+        .btn-custom:active {
+            transform: scale(0.95);
+            /* Slightly scale down on click */
+        }
+
+        .button-container {
+            display: flex;
+            /* Use flexbox for layout */
+            justify-content: center;
+            /* Center the buttons */
+            gap: 10px;
+            /* Space between buttons */
+        }
     </style>
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">Grapevine</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</nav>
-
-<div class="content">
-    <section id="submission-section" class="container mt-5">
-        <h2>Thank You for Your Submission!</h2>
-        <p>Your form has been successfully submitted. Here are the details:</p>
-        <ul id="submission-details" class="list-group">
-        </ul>
-
-        <div class="mt-4">
-            <a href="/" class="btn btn-primary">Go to Home</a>
-            <a href="/report" class="btn btn-secondary">Submit Another Report</a>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Grapevine</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
-    </section>
-</div>
+    </nav>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="content">
+        <section id="submission-section" class="container mt-5">
+            <h2 class="text-center">Thank You for Your Submission!</h2>
+            <p class="text-center">Your form has been successfully submitted. Here are the details:</p>
+            <ul id="submission-details" class="list-group"></ul>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+            <div class="mt-4 button-container">
+                <a href="/" class="btn btn-home">Go to Home</a>
+                <a href="/report" class="btn btn-secondary btn-secondary-custom">Submit Another Report</a>
+            </div>
+        </section>
+    </div>
 
-<!-- Custom JS for Leaflet Map -->
-<script src="form_submit.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Footer -->
-<footer>
-    <p>&copy; 2024 Grapevine | All Rights Reserved</p>
-</footer>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script src="form_submit.js"></script>
+
+    <footer class="footer text-center">
+        <p>&copy; 2024 Grapevine | All Rights Reserved</p>
+    </footer>
+
+    <script>
+        function handleButtonClick() {
+            // Simulate haptic feedback by changing button color briefly
+            const buttons = document.querySelectorAll('.btn-custom');
+            buttons.forEach(btn => {
+                btn.classList.add('active');
+                setTimeout(() => {
+                    btn.classList.remove('active');
+                }, 100);
+            });
+        }
+    </script>
 </body>
+
 </html>

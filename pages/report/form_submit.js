@@ -9,7 +9,6 @@ function getQueryParams() {
     return params;
 }
 
-// Function to populate the list with query parameters
 function populateResults() {
     let fieldMap = {
         "name": "Name",
@@ -31,20 +30,18 @@ function populateResults() {
 
 function formatISODate(isoString) {
     const date = new Date(isoString);
-    
-    // Options for formatting the date
+
     const options = {
         year: 'numeric',
-        month: 'long', // You can use 'short' for abbreviated month names
+        month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: true // Set to false for 24-hour format
+        hour12: true
     };
 
-    return date.toLocaleString('en-US', options); // Adjust locale as needed
+    return date.toLocaleString('en-US', options);
 }
 
-// Populate the results when the page loads
 window.onload = populateResults;

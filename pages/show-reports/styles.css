@@ -1,31 +1,28 @@
-/* Global Styles */
 body {
-  font-family: 'Times New Roman', sans-serif; /* Unified font across pages */
+  font-family: 'Times New Roman', sans-serif;
   background-color: #f7f9fc;
   color: #333;
 }
 
-/* Navbar Styling */
 .navbar {
-  background-color: #ffffff; /* White background for a clean look */
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow for slight elevation */
+  background-color: #ffffff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .navbar-brand {
-  color: #1c5214 !important; /* Bright blue for brand logo/link */   
+  color: #1c5214 !important;
   font-family: 'Times New Roman', serif;
 }
 
 .nav-link {
-  color: #555 !important; /* Medium gray for navigation links */
+  color: #555 !important;
 }
 
 .nav-link:hover {
-  color: #007bff !important; /* Bright blue on hover to match brand color */
+  color: #007bff !important;
 }
 
 
-/* Hero Section */
 .hero {
   background: url('https://source.unsplash.com/1600x900/?technology') no-repeat center center;
   background-size: cover;
@@ -38,8 +35,8 @@ body {
   font-weight: 500;
 }
 
-/* Map Styles */
-#selection-map, #map {
+#selection-map,
+#map {
   height: 500px;
   width: 100%;
   border-radius: 10px;
@@ -47,7 +44,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* Footer */
 footer {
   background-color: #f8f9fa;
   padding: 20px;
@@ -60,8 +56,7 @@ footer p {
   color: #6c757d;
 }
 
-/* Container for Forms/Content */
-.container { 
+.container {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
@@ -74,35 +69,31 @@ h2 {
   text-align: center;
 }
 
-/* Margin and Padding */
 .mb-3 {
   margin-bottom: 15px;
 }
 
-/* Button Styling */
 .btn {
-  background-color: #741433; /* Unified button color */
+  background-color: #741433;
   color: white;
   width: 100%;
 }
 
 .btn:hover {
-  background-color: #6b132e; /* Unified hover state */
+  background-color: #6b132e;
 }
 
-/* Map Controls */
 .map-controls {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px; /* Fixed padding */
+  padding: 20px;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   font-weight: bold;
 }
 
-/* Grapevine Title */
 .grapevine-title {
   font-family: "Times New Roman";
   font-size: 75px;
@@ -110,17 +101,14 @@ h2 {
   text-align: center;
 }
 
-/* Description Text */
 #desc {
   font-size: 20px;
 }
 
-/* Map Background */
 .background-map {
   opacity: 1;
 }
 
-/* About Section */
 .about-section {
   background-color: #f9f9f9;
   padding: 20px 15px;
@@ -141,7 +129,6 @@ h2 {
   font-size: 16px;
 }
 
-/* Logo Styling */
 .logo {
   width: 200px;
   height: auto;

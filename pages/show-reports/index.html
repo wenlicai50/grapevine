@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Tech Demo with Leaflet Map and Form</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css" />
     <style>
-
         .suggestions {
             list-style-type: none;
             padding: 0;
@@ -26,171 +23,204 @@
             background-color: white;
             z-index: 10;
         }
+
         .suggestions li {
             padding: 10px;
             cursor: pointer;
         }
+
         .suggestions li:hover {
             background-color: #dfe1e7;
         }
+
         body {
-            background-color: #f8f9fa; /* Light gray background for the page */
+            background-color: #f8f9fa;
+            /* Light gray background for the page */
         }
+
         #selection-map {
-            height: 70vh; /* 70% of the viewport height for the map */
-            border-radius: 0; /* Remove border radius for full span */
+            height: 70vh;
+            /* 70% of the viewport height for the map */
+            border-radius: 0;
+            /* Remove border radius for full span */
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            position: relative; /* Position relative for absolute children */
+            position: relative;
+            /* Position relative for absolute children */
         }
+
         .map-controls {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* Centering the controls */
+            transform: translate(-50%, -50%);
+            /* Centering the controls */
             display: flex;
-            align-items: center; /* Align items vertically */
-            z-index: 9; /* Make sure controls are above the map */
-            background-color: rgba(255, 255, 255, 0.9); /* Slight background for better visibility */
-            padding: 20px; /* Increased padding for a better look */
-            border-radius: 10px; /* Rounded corners */
+            align-items: center;
+            /* Align items vertically */
+            z-index: 9;
+            /* Make sure controls are above the map */
+            background-color: rgba(255, 255, 255, 0.9);
+            /* Slight background for better visibility */
+            padding: 20px;
+            /* Increased padding for a better look */
+            border-radius: 10px;
+            /* Rounded corners */
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
         }
+
         .map-controls input[type="text"] {
-            margin: 0 10px; /* Margin for spacing */
-            padding: 8px; /* Padding for input */
-            border: 1px solid #ccc; /* Border for input */
-            border-radius: 5px; /* Rounded corners for input */
+            margin: 0 10px;
+            /* Margin for spacing */
+            padding: 8px;
+            /* Padding for input */
+            border: 1px solid #ccc;
+            /* Border for input */
+            border-radius: 5px;
+            /* Rounded corners for input */
         }
+
         .map-controls a {
-            margin: 0 15px; /* Margin for spacing */
+            margin: 0 15px;
+            /* Margin for spacing */
             text-decoration: none;
             color: #ffffff;
-            font-weight: bold; /* Make the text bold */
-            padding: 12px 24px; /* Padding for buttons */
-            border-radius: 5px; /* Rounded corners for buttons */
-            background-color: #007bff; /* Button background color */
-            transition: background-color 0.3s, transform 0.3s; /* Transition effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            font-weight: bold;
+            /* Make the text bold */
+            padding: 12px 24px;
+            /* Padding for buttons */
+            border-radius: 5px;
+            /* Rounded corners for buttons */
+            background-color: #007bff;
+            /* Button background color */
+            transition: background-color 0.3s, transform 0.3s;
+            /* Transition effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow for depth */
         }
+
         .map-controls a:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-            transform: translateY(-2px); /* Lift effect on hover */
+            background-color: #0056b3;
+            /* Darker blue on hover */
+            transform: translateY(-2px);
+            /* Lift effect on hover */
         }
+
         .or {
-            margin: 0 10px; /* Spacing around the 'or' */
-            font-weight: bold; /* Make the 'or' bold */
-            font-size: 18px; /* Font size for 'or' */
-            color: #333; /* Dark color for contrast */
+            margin: 0 10px;
+            /* Spacing around the 'or' */
+            font-weight: bold;
+            /* Make the 'or' bold */
+            font-size: 18px;
+            /* Font size for 'or' */
+            color: #333;
+            /* Dark color for contrast */
         }
+
         footer {
-            padding: 20px 0; /* Padding for footer */
-            background-color: #343a40; /* Dark background for footer */
-            color: white; /* White text color for footer */
+            padding: 20px 0;
+            /* Padding for footer */
+            background-color: #343a40;
+            /* Dark background for footer */
+            color: white;
+            /* White text color for footer */
         }
     </style>
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">Grapevine</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Grapevine</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
 
-<!-- Map to Select Location -->
-<section class="container-fluid my-0">
-    <div class="row">
-        <div class="col-12">
-            <div id="filter-bar" class="d-flex align-items-center p-3" style="background-color: #e9ecef; justify-content: right;">
-                <div class="filter-general-dropdown me-3">
-                    <label for="general-report-filter" class="me-2">Filter by Report Type:</label>
-                    <select id="general-report-filter" class="form-select" style="width: 200px;">
-                        <option value="all">All</option>
-                        <option value="Recommendation">Recommendations</option>
-                        <option value="Incident">Incidents</option>
-                    </select>
-                </div>
-                <!-- Dropdown for filtering by report type -->
-                <div class="filter-dropdown me-3">
-                    <label for="report-filter" class="me-2">Filter by Report Subtype:</label>
-                    <select id="report-filter" class="form-select" style="width: 200px;">
-                    <option value="all">All Reports</option>
-                    <optgroup label="Reports">
-                        <option value="theft">Theft</option>
-                        <option value="drug-related incidents">Drug-Related Incidents</option>
-                        <option value="assault">Assault</option>
-                    </optgroup>
-                    <optgroup label="Recommendations">
-                        <option value="shopping">Shopping</option>
-                        <option value="events">Events</option>
-                        <option value="nature-outdoors">Nature and Outdoors</option>
-                    </optgroup>
-                    </select>
-                </div>
-
-                <div>
-                    <!-- Time input for filtering -->
-                    <div class="time-range d-flex align-items-center me-3 ms-auto" id="time-range">
-                        <label for="time-filter" class="me-2">Time:</label>
-                        <input type="time" id="time-filter" class="form-control me-2" disabled/>
+    <section class="container-fluid my-0">
+        <div class="row">
+            <div class="col-12">
+                <div id="filter-bar" class="d-flex align-items-center p-3"
+                    style="background-color: #e9ecef; justify-content: right;">
+                    <div class="filter-general-dropdown me-3">
+                        <label for="general-report-filter" class="me-2">Filter by Report Type:</label>
+                        <select id="general-report-filter" class="form-select" style="width: 200px;">
+                            <option value="all">All</option>
+                            <option value="Recommendation">Recommendations</option>
+                            <option value="Incident">Incidents</option>
+                        </select>
+                    </div>
+                    <div class="filter-dropdown me-3">
+                        <label for="report-filter" class="me-2">Filter by Report Subtype:</label>
+                        <select id="report-filter" class="form-select" style="width: 200px;">
+                            <option value="all">All Reports</option>
+                            <optgroup label="Reports">
+                                <option value="theft">Theft</option>
+                                <option value="drug-related incidents">Drug-Related Incidents</option>
+                                <option value="assault">Assault</option>
+                            </optgroup>
+                            <optgroup label="Recommendations">
+                                <option value="shopping">Shopping</option>
+                                <option value="events">Events</option>
+                                <option value="nature-outdoors">Nature and Outdoors</option>
+                            </optgroup>
+                        </select>
                     </div>
 
-                    <!-- Checkbox to toggle time filter -->
-                    <div class="time-toggle me-2 ms-auto">
-                        <input type="checkbox" id="toggle-time-filter" />
-                        <label for="toggle-time-filter" class="ms-1">Use Time Filter</label>
-                    </div>
+                    <div>
+                        <div class="time-range d-flex align-items-center me-3 ms-auto" id="time-range">
+                            <label for="time-filter" class="me-2">Time:</label>
+                            <input type="time" id="time-filter" class="form-control me-2" disabled />
+                        </div>
 
-                    <!-- Apply button -->
-                    <button id="apply-filter" class="btn btn-secondary ms-auto">Apply</button>
+                        <div class="time-toggle me-2 ms-auto">
+                            <input type="checkbox" id="toggle-time-filter" />
+                            <label for="toggle-time-filter" class="ms-1">Use Time Filter</label>
+                        </div>
+
+                        <button id="apply-filter" class="btn btn-secondary ms-auto">Apply</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- Map to Select Location -->
-        <div class="col-lg-9 col-md-8">
-            <div id="selection-map" style="height: 70vh;"></div>
-        </div>
-
-        <!-- Side Panel for Reports -->
-        <div class="col-lg-3 col-md-4" id="side-panel" style="background-color: #f8f9fa; padding: 20px; height: 100vh; position: relative;">
-            <h4>Reports</h4>
-
-            <!-- Input Form Section (fixed at the top of the side panel) -->
-            <div class="input-section" style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 100; padding-bottom: 10px;">
-                <input type="text" id="address-input" placeholder="Enter Address" class="form-control mb-3" />
-                <ul class="suggestions" id="suggestion-box"></ul>
-                <input type="number" id="distance-input" placeholder="Distance (m)" class="form-control mb-3" value=1000 />
-                <button id="fetch-reports" class="btn btn-primary mb-3">Fetch Report</button>
+        <div class="row">
+            <div class="col-lg-9 col-md-8">
+                <div id="selection-map" style="height: 70vh;"></div>
             </div>
 
-            <!-- Container for Dynamic Report Blocks (scrollable) -->
-            <div id="reports-container" style="max-height: calc(100vh - 300px); overflow-y: auto; padding-top: 10px;">
-                <!-- Dynamically added report blocks will go here -->
+            <div class="col-lg-3 col-md-4" id="side-panel"
+                style="background-color: #f8f9fa; padding: 20px; height: 100vh; position: relative;">
+                <h4>Reports</h4>
+
+                <div class="input-section"
+                    style="position: sticky; top: 0; background-color: #f8f9fa; z-index: 100; padding-bottom: 10px;">
+                    <input type="text" id="address-input" placeholder="Enter Address" class="form-control mb-3" />
+                    <ul class="suggestions" id="suggestion-box"></ul>
+                    <input type="number" id="distance-input" placeholder="Distance (m)" class="form-control mb-3"
+                        value=1000 />
+                    <button id="fetch-reports" class="btn btn-primary mb-3">Fetch Report</button>
+                </div>
+
+                <div id="reports-container"
+                    style="max-height: calc(100vh - 300px); overflow-y: auto; padding-top: 10px;">
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<!-- Custom JS for Leaflet Map -->
-<script src="show-reports.js"></script>
+    <script src="show-reports.js"></script>
 
-<!-- Footer -->
-<footer style="position:relative; z-index:1000;"class="text-center mt-4">
-    <p>&copy; 2024 Grapevine | All Rights Reserved</p>
-</footer>
+    <footer style="position:relative; z-index:1000;" class="text-center mt-4">
+        <p>&copy; 2024 Grapevine | All Rights Reserved</p>
+    </footer>
 </body>
+
 </html>

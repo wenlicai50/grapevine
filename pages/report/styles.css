@@ -26,7 +26,8 @@ body {
   font-weight: 500;
 }
 
-#selection-map, #map {
+#selection-map,
+#map {
   height: 500px;
   width: 100%;
   border-radius: 10px;
@@ -45,8 +46,8 @@ footer p {
   margin: 0;
   color: #6c757d;
 }
-/* This is a comment */
-.container { 
+
+.container {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
@@ -69,10 +70,53 @@ h2 {
 
 .nav-title {
   font-family: "Times New Roman";
-  font-size:40px;
+  font-size: 40px;
   color: #1c5214;
 }
 
-.text{
+.text {
   font-family: "Times New Roman";
+}
+
+.btn-home {
+  background-color: #741433;
+  border-color: #741433;
+  color: white !important;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-home:hover {
+  background-color: #6a112b;
+  border-color: #6a112b;
+}
+
+.btn-home:active {
+  transform: scale(0.95);
+}
+
+.btn-submit {
+  background-color: #741433;
+  border-color: #741433;
+  color: white !important;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-submit:hover {
+  background-color: #6a112b;
+  border-color: #6a112b;
+  color: white;
+}
+
+.btn-submit:active {
+  transform: scale(0.95);
+}
+
+.btn-secondary-custom {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary-custom:hover {
+  background-color: #6c757d;
+  color: white;
 }

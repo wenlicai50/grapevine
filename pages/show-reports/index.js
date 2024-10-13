@@ -13,32 +13,36 @@ router.get('/', (req, res) => {
 router.post('/find', async (req, res) => {
     const filters = req.body.filters
     var reports;
-    if(filters.genReportType == "all"){
+    if (filters.genReportType == "all") {
         reports = await Report.find({})
     } else {
-        reports = await Report.find({reportType: filters.genReportType})
+        reports = await Report.find({
+            reportType: filters.genReportType
+        })
     }
 
-    //filter by subtype
-    if(filters.reportType != "all"){
+    if (filters.reportType != "all") {
         reports = reports.filter(report => {
             return report.subtype == filters.reportType
         })
     }
 
-    if(filters.time){
+    if (filters.time) {
         reports = reports.filter(report => {
-            let hour = parseInt(filters.time.substring(0,2))
-            let minute = parseInt(filters.time.substring(3))
             reportDate = new Date(report.timestamp)
-
-            return Math.abs(reportDate.getHours() - hour) < 3
+            return Math.abs(reportDate - new Date(filters.time)) / 36e5 < 3
         })
     }
 
     var returned_reports = []
-    for(const report of reports){
-        if(haversine({latitude: report.lat, longitude: report.lng}, {latitude: req.body.lat, longitude: req.body.lng}) < req.body.dist){
+    for (const report of reports) {
+        if (haversine({
+                latitude: report.lat,
+                longitude: report.lng
+            }, {
+                latitude: req.body.lat,
+                longitude: req.body.lng
+            }) < req.body.dist) {
             returned_reports.push(report)
         }
     }
@@ -47,13 +51,15 @@ router.post('/find', async (req, res) => {
 
 router.post('/vote', async (req, res) => {
     const report = await findReportById(new mongoose.Types.ObjectId(req.body.id))
-    report.updateOne({rating: report.rating += req.body.incr})
+    report.updateOne({
+        rating: report.rating += req.body.incr
+    })
     report.save()
 
     res.send(JSON.stringify(report))
 })
 
-async function findReportById(id){
+async function findReportById(id) {
     const reports = await Report.findById(id);
     return reports
 }
